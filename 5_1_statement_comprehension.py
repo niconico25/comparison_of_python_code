@@ -10,6 +10,9 @@ def comparison():
     funcscale.argument_list = [
         ((i, ), {}) for i in range(7)
     ]
+    funcscale.str_argument_list = [
+        f'({i}, )' for i in range(7)
+    ]
     return funcscale.compare()
 
 
@@ -36,11 +39,11 @@ def for_statement_list_comprehension(i):
 
 
 def linear_congruential_generators(a, x, b, m):
-    def _():
+    def random():
         nonlocal x
         x = (a * x + b) % m
         return x
-    return _
+    return random
 
 
 if __name__ == '__main__':
