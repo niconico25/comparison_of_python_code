@@ -6,25 +6,27 @@ def comparison():
     # Create parameters.
     function_list = [
         list_iterator,
-        iterator,
-        generator
+        generator_iterator,
+        original_iterator,
+        original_iterator_parental,
     ]
     argument_list = [
         (([random.randint(0, 10**n - 1) for i in range(10**n)], ), {})
         for n in range(6)
     ]
     str_argument_list = [
-        f'([random.randint(0, 10**{n} - 1) for i in range(10**{n})], )'
+        f'[randint(0, 10**{n} - 1) for i in range(10**{n})]'
         for n in range(6)
     ]
 
     def setup(function, argument):
         value_list = funcscale.repr_argument(argument)
+        path = 'tree.tree.binary_search_tree'
         return '\n'.join((
             'from __main__ import ' + function.__name__,
-            'from binary_search_tree import BinarySearchTree',
-            'from binary_search_tree import BinarySearchNode',
-            'bst = BinarySearchTree()',
+            'from ' + path + '               import BinarySearchTree',
+            'from ' + path + '.parental      import BinarySearchNode',
+            'bst = BinarySearchTree(BinarySearchNode)',
             'for value in ' + value_list + ':',
             '   bst.insert(value)',
             'BinarySearchNode.__iter__ = ' + function.__name__
@@ -48,39 +50,35 @@ def comparison():
 #
 #
 try:
-    from binary_search_tree import Path
-    from binary_search_tree import BinarySearchNode
+    from tree.tree.binary_search_tree.sequencial import Iterator as Sequencial
+    from tree.tree.binary_search_tree.parental import Iterator as Parental
 except ModuleNotFoundError as err:
     print('%s: %s' % (err.__class__.__name__, str(err)))
-    print('Please download binary_search_tree.py from ...')
-    print('https://github.com/domodomodomo/binary_search_tree')
+    print('Please download...')
+    print('$ git clone https://github.com/niconico25/tree')
     import sys
     sys.exit()
-else:
-    from typing import Iterator
 
 
-def list_iterator(
-    binary_search_node: BinarySearchNode
-) -> Iterator[BinarySearchNode]:
+def list_iterator(binary_search_node):
     return iter(binary_search_node.list())
 
 
-def iterator(
-    binary_search_node: BinarySearchNode
-) -> Iterator[BinarySearchNode]:
-    return Path(binary_search_node)
-
-
-def generator(
-    binary_search_node: BinarySearchNode
-) -> Iterator[BinarySearchNode]:
+def generator_iterator(binary_search_node):
     bsn = binary_search_node
     if bsn.left:
         yield from bsn.left
     yield bsn.value
     if bsn.right:
         yield from bsn.right
+
+
+def original_iterator(binary_search_node):
+    return Sequencial(binary_search_node)
+
+
+def original_iterator_parental(binary_search_node):
+    return Parental(binary_search_node)
 
 
 #
