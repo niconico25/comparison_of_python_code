@@ -1,5 +1,5 @@
-import timeit
 import time
+import timeit
 
 
 #
@@ -19,10 +19,11 @@ def _compare_result():
             for function in function_list
         )
         result_0 = next(result_generator)
-        assert all(
+        if not all(
             result_k == result_0
             for result_k in result_generator
-        ), f'The results are not same.'
+        ):
+            raise Exception('The results are not same.')
 
 
 def _evaluate(function, argument):
@@ -38,12 +39,7 @@ def _compare_time():
         print('# Case', i)
         print('#', str_argument)
         for function in function_list:
-            # Take a same way with python -m timeit ...
-            # Timer.autorange
-            # best
-            # 1)
-            # 2)
-            # timeit API 汚くない？
+            # Take a almost same way with `python -m timeit`
             timer = timeit.Timer(
                 stmt=stmt(function, argument),
                 setup=setup(function, argument),
@@ -90,7 +86,7 @@ def stmt(function, argument):
 #
 # 3) utility
 #
-def repr_argument(argument) -> str:
+def repr_argument(argument):
     """Return "(*args, **kwargs)"."""
     args, kwargs = argument
     args = ', '.join('%s' % a for a in args)
@@ -117,6 +113,8 @@ If you want to change setup and stmt(parameters for timeit.timeit() function),
 override funcscale.steup() function and funcscale.stmt() function.
 
 
+
+
 ## 2. Why does this code use global variables instead of arguments?
 
  * funcscale.function_list
@@ -138,9 +136,76 @@ def compare(function_list, argument_list):
 funcscale.compare() function is expeted
 to execute only one time for each script.
 
-We never call the function, funcscale.compre(), two times or more in a script,
+We never call the function, funcscale.compre(),
+two times or more in this script,
 which means we don't have to consider
 a side effect or a state of the module, funcscale.
 
 So we can use global variables for this module.
+
+
+
+
+
+## 3. Why argument_list and str_argument_list are separeted?
+Is this cumbersome?
+```python
+    argument_list = [
+        (([random.randint(0, 10**n - 1) for i in range(10**n)], ), {})
+        for n in range(6)
+    ]
+    str_argument_list = [
+        f'([random.randint(0, 10**{n} - 1) for i in range(10**{n})], )'
+        for n in range(6)
+    ]
+```
+
+### 3.1. If you define an argument only by expression,
+A output would be very long, if you use a long list, like below.
+```python
+    argument_list = [
+        (([random.randint(0, 10**n - 1) for i in range(10**n)], ), {})
+        for n in range(6)
+    ]
+```
+
+### 3.2. If you define an arugment only by str.
+A output would be a little bit complated, because of kwargs.
+```python
+    funcscale.argument_list = [
+        f'((10**{i}, ), {{}})' for i in range(4)
+                        ^^^^ This is redundant, I think.
+    ]
+```
+
+Of course, we can make a parameter for disabling kwargs,
+then API would be like this.
+```python
+    funcscale.argument_list = [
+        f'(10**{i}, )' for i in range(4)
+    ]
+```
+
+But an implementation would be
+a little bit complicated for this small tool.
+
+And also, even if we implement such a funciton,
+dict {} is comlicated in f str.
+```
+>>> # NG
+>>> f'{}'
+SyntaxError: f-string: empty expression not allowed
+>>>
+>>> # OK
+>>> f'{{}}'
+{}
+>>>
+```
+
+```python
+    funcscale.argument_list = [
+        f'((10**{i}, ), {{}})' for i in range(4)
+                        ^^^^ This is annoying, I think.
+    ]
+```
 """

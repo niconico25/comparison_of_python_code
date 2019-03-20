@@ -14,7 +14,7 @@ def comparison():
         ((10**i, ), {}) for i in range(4)
     ]
     funcscale.str_argument_list = [
-        f'(10**{i}, )' for i in range(4)
+        f'10**{i}' for i in range(4)
     ]
     return funcscale.compare()
 

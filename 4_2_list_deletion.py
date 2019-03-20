@@ -14,7 +14,7 @@ def comparison():
         for i in range(6)
     ]
     funcscale.str_argument_list = [
-        f'([random.randint(0, 10**i - 1) for _ in range(10**{i})], )'
+        f'[random.randint(0, 10**i - 1) for _ in range(10**{i})]'
         for i in range(6)
     ]
     return funcscale.compare()
